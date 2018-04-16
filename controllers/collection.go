@@ -1,15 +1,16 @@
 package controllers
 
 import (
+	"GoogleFirebase/models"
+	"GoogleFirebase/utilities"
 	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
-	"GoogleFirebase/models"
-	"GoogleFirebase/utilities"
 )
 
 func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.ResponseJSON {
@@ -37,7 +38,7 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 	json.Unmarshal(body, &inputobj)
 
 	switch true {
-	/* Get all collection json response*/	
+	/* Get all collection json response*/
 	case cast.ToString(r.Method) == "GET" && cast.ToString(ID) == "":
 		allData := models.GetAll(ctx, client, collection)
 		if len(allData) > 0 {
@@ -49,7 +50,7 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 			returnData.Msg = "Failure:USER GET REQUEST"
 		}
 		break
-	/*Get collection json response By FirebaseID*/	
+	/*Get collection json response By FirebaseID*/
 	case cast.ToString(r.Method) == "GET" && cast.ToString(ID) != "":
 		allData := models.GetOne(ctx, client, collection, cast.ToString(ID), "")
 		if len(allData) > 0 {
@@ -61,7 +62,7 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 			returnData.Msg = "Failure:USER doesn't exists"
 		}
 		break
-	/*Get collection json response By Key And Value */	
+	/*Get collection json response By Key And Value */
 	case cast.ToString(r.Method) == "GET" && cast.ToString(key) != "" && cast.ToString(value) != "":
 		allData := utilities.GetCollectionFirebaseFunction(collection, cast.ToString(key), cast.ToString(value))
 		if len(allData) > 0 {
@@ -74,8 +75,8 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 			returnData.Model = nil
 		}
 		break
- 	/*Update collection json response same struct of firebase*/
-	case cast.ToString(r.Method) == "POST" :
+		/*Update collection json response same struct of firebase*/
+	case cast.ToString(r.Method) == "POST":
 		err := models.Update(ctx, client, collection, inputobj)
 		if err == nil {
 			returnData.Code = 200
@@ -86,8 +87,8 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 			returnData.Msg = "Failure:USER  Update error"
 		}
 		break
-	/*Create New collection json response same struct of firebase*/	
-	case cast.ToString(r.Method) == "PUT" :
+	/*Create New collection json response same struct of firebase*/
+	case cast.ToString(r.Method) == "PUT":
 		err := models.Create(ctx, client, collection, inputobj)
 		if err == nil {
 			returnData.Code = 200
@@ -97,7 +98,7 @@ func MapCollectionUrl(w http.ResponseWriter, r *http.Request) utilities.Response
 			returnData.Code = 404
 			returnData.Msg = "Failure:User Creation error"
 		}
-	
+
 	default:
 		fmt.Println("Not Authorized to access this resource")
 		returnData.Code = 406

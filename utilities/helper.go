@@ -3,8 +3,9 @@ package utilities
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/spf13/cast"
 	"fmt"
+	"github.com/spf13/cast"
+	"github.com/spf13/viper"
 	"google.golang.org/api/iterator"
 )
 
